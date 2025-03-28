@@ -1,2 +1,2 @@
-GET http://localhost:5050/users
+GET http://localhost:7000/ubicaciones
 

@@ -1,4 +1,4 @@
-const socket = io("http://localhost:5050", { path: "/rea-time" });
+const socket = io("http://localhost:7000", { path: "/rea-time" });
 
 async function actualizarLista() {
   const res = await fetch("/ubicaciones");

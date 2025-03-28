@@ -1,7 +1,7 @@
 //Funcionalidad
-// Cliente A envía su ubicación con fetch("/ubicaciones", { method: "POST" }).
-// Cliente B obtiene las ubicaciones con fetch("/ubicaciones").
-// Ambos clientes reciben actualizaciones en tiempo real con Socket.io.
+// Cliente A envía un mensaje con fetch("/mensajes", { method: "POST" }).
+// Cliente B obtiene los mensajes con fetch("/mensajes").
+// Ambos clientes reciben mensajes en tiempo real con Socket.io.
 
 const express = require("express");
 const path = require("path");
@@ -24,26 +24,26 @@ app.use(express.json());
 app.use("/app1", express.static(path.join(__dirname, "app1")));
 app.use("/app2", express.static(path.join(__dirname, "app2")));
 
-let ubicaciones = []; // [{ id, lat, lon }]
+let mensajes = []; // [{ usuario, mensaje }]
 
-app.get("/ubicaciones", (req, res) => {
-    res.json(ubicaciones);
+app.get("/mensajes", (req, res) => {
+    res.json(mensajes);
 });
 
-app.post("/ubicaciones", (req, res) => {
-    const { id, lat, lon } = req.body;
-    if (!id || !lat || !lon) return res.status(400).json({ error: "Faltan datos" });
+app.post("/mensajes", (req, res) => {
+    const { usuario, mensaje } = req.body;
+    if (!usuario || !mensaje) return res.status(400).json({ error: "Faltan datos" });
 
-    ubicaciones = ubicaciones.filter(u => u.id !== id);
-    ubicaciones.push({ id, lat, lon });
+    const nuevoMensaje = { usuario, mensaje };
+    mensajes.push(nuevoMensaje);
 
-    io.emit("nuevaUbicacion", ubicaciones); // Notifica a los clientes
-    res.json({ mensaje: "Ubicación guardada" });
+    io.emit("nuevoMensaje", nuevoMensaje); // Notifica a los clientes
+    res.json({ mensaje: "Mensaje enviado" });
 });
 
 io.on("connection", (socket) => {
     console.log("Cliente conectado");
-    socket.emit("nuevaUbicacion", ubicaciones); // Enviar ubicaciones actuales al conectar
+    socket.emit("cargarMensajes", mensajes); // Enviar historial al conectar
 
     socket.on("disconnect", () => {
         console.log("Cliente desconectado");
