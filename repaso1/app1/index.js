@@ -1,16 +1,18 @@
 const socket = io("http://localhost:5050", { path: "/rea-time" });
+const userId = `userA_${Math.floor(Math.random() * 1000)}`;
 
-document.getElementById("get-btn").addEventListener("click", getUsers);
+document.getElementById("send-button").addEventListener("click", () => {
+  if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(async (pos) => {
+          const data = { id: userId, lat: pos.coords.latitude, lon: pos.coords.longitude };
 
-function getUsers() {
-  fetch("http://localhost:5050/users")
-    .then((response) => response.json())
-    .then((data) => console.log("get response", data))
-    .catch((error) => console.error("Error:", error));
-}
-
-const sendCoordenates = () => {
-  socket.emit("coordenadas", { x: 123, y: 432 });
-};
-
-document.getElementById("event-btn").addEventListener("click", sendCoordenates);
+          await fetch("/ubicaciones", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(data),
+          });
+      });
+  } else {
+      alert("Geolocalización no soportada");
+  }
+});
